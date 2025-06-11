@@ -77,6 +77,24 @@ public class GameMain {
 
     /** The entry main() method */
     public static void main(String[] args) {
-        new GameMain();  // Let the constructor do the job
+        boolean wrongPassword=false;
+        Scanner sc = new Scanner(System.in);
+
+        do{
+            System.out.println("Enter Username: ");
+            String uName=sc.next();
+            System.out.println("Enter Password: ");
+            String pass=sc.next();
+            String truePass= getPassword(uName);
+            if(pass.equals("1234")){
+                wrongPassword=false;
+            }
+            else{
+                System.out.println("Wrong Password, please try again...")
+            }
+            new GameMain();  // Let the constructor do the job
+        }
+        while(wrongPassword);
+
     }
 }
