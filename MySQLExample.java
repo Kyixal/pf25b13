@@ -13,15 +13,6 @@ public class MySQLExample {
         databaseName = "defaultdb";
         userName = "avnadmin";
         password = "AVNS_CfZzLVtdgXNe1MCW1Gt";
-//        for (int i = 0; i < args.length - 1; i++) {
-//            switch (args[i].toLowerCase(Locale.ROOT)) {
-//                case "-host": host = args[++i]; break;
-//                case "-username": userName = args[++i]; break;
-//                case "-password": password = args[++i]; break;
-//                case "-database": databaseName = args[++i]; break;
-//                case "-port": port = args[++i]; break;
-//            }
-//        }
 
         // JDBC allows to have nullable username and password
         if (host == null || port == null || databaseName == null) {
