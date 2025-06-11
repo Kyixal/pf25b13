@@ -94,7 +94,7 @@ public class GameMain {
             }
             new GameMain();  // Let the constructor do the job
         }
-        while(wrongPassword;
+        while(wrongPassword);
 
     }
 }
