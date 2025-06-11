@@ -1,6 +1,8 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.sql.*;
+import java.util.Scanner;
 /**
  * Tic-Tac-Toe: Two-player Graphic version with better OO design.
  * The Board and Cell classes are separated in their own classes.
@@ -112,7 +114,19 @@ public class GameMain extends JPanel {
     }
 
     /** The entry "main" method */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException {
+        boolean wrongPassword = true;
+        do{
+            Scanner read = new Scanner(System.in);
+            System.out.println("Enter username: ");
+            String uName = read.next();
+            System.out.println("Enter Password: ");
+            String password = read.next();
+            String truePassword = getPassword(uName);
+            if(password.equals(truePassword)){
+                wrongPassword = false;
+            }
+        }while(wrongPassword);
         // Run GUI construction codes in Event-Dispatching thread for thread safety
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -125,5 +139,34 @@ public class GameMain extends JPanel {
                 frame.setVisible(true);            // show it
             }
         });
+    }
+    static String getPassword(String username) throws ClassNotFoundException{
+        String user_password = "";
+        String host, port, databaseName, userName, password;
+        host = "mysql-buatfp1-anandamutiara2506-1e2c.c.aivencloud.com";
+        port = "26799";
+        databaseName = "tictactoedb";
+        userName = "avnadmin";
+        password = "AVNS_CfZzLVtdgXNe1MCW1Gt";
+
+        // JDBC allows to have nullable username and password
+        if (host == null || port == null || databaseName == null) {
+            System.out.println("Host, port, database information is required");
+//            return;
+        }
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        try (final Connection connection =
+                     DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + databaseName + "?sslmode=require", userName, password);
+             final Statement statement = connection.createStatement();
+             final ResultSet resultSet = statement.executeQuery("SELECT password from user where username = '"+username+"'")) {
+
+            while (resultSet.next()) {
+                user_password = resultSet.getString("password");
+            }
+        } catch (SQLException e) {
+            System.out.println("Connection failure.");
+            e.printStackTrace();
+        }
+        return user_password;
     }
 }
