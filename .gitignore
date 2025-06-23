@@ -1,0 +1,42 @@
+# ====================================
+# IntelliJ IDEA-specific files
+# ====================================
+.idea/
+*.iml
+
+# ====================================
+# Java build output
+# ====================================
+out/
+build/
+target/
+*.class
+
+# ====================================
+# OS-specific junk files
+# ====================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ====================================
+# Log / temp files
+# ====================================
+*.log
+*.tmp
+*.swp
+
+# ====================================
+# Gradle or Maven (if used in future)
+# ====================================
+.gradle/
+!gradle-wrapper.jar
+**/build/
+**/target/
+
+# ====================================
+# Optional: ignore compiled audio assets or binaries
+# ====================================
+*.wav
+*.mp3
+*.bin
