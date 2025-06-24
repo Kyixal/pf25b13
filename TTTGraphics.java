@@ -8,8 +8,8 @@ public class TTTGraphics extends JFrame {
     private static final long serialVersionUID = 1L; // to prevent serializable warning
 
     // Define named constants for the game board
-    public static final int ROWS = 3;  // ROWS x COLS cells
-    public static final int COLS = 3;
+    public static final int ROWS = 6;  // ROWS x COLS cells
+    public static final int COLS = 7;
 
     // Define named constants for the drawing graphics
     public static final int CELL_SIZE = 120; // cell width/height (square)
@@ -67,12 +67,16 @@ public class TTTGraphics extends JFrame {
                 int col = mouseX / CELL_SIZE;
 
                 if (currentState == State.PLAYING) {
-                    if (row >= 0 && row < ROWS && col >= 0
-                            && col < COLS && board[row][col] == Seed.NO_SEED) {
-                        // Update board[][] and return the new game state after the move
-                        currentState = stepGame(currentPlayer, row, col);
-                        // Switch player
-                        currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
+                    if (col >= 0 && col < COLS) {
+                        // Look for an empty cell starting from the bottom row
+                        for (row = ROWS -1; row >= 0; row--) {
+                            if (board[row][col] == Seed.NO_SEED) {
+                                board[row][col] = currentPlayer; // Make a move
+                                // Switch player
+                                currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
+                                break;
+                            }
+                        }
                     }
                 } else {       // game over
                     newGame(); // restart the game
