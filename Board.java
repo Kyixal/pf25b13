@@ -4,8 +4,8 @@ import java.awt.*;
  */
 public class Board {
     // Define named constants
-    public static final int ROWS = 3;  // ROWS x COLS cells
-    public static final int COLS = 3;
+    public static final int ROWS = 6;  // ROWS x COLS cells (Connect Four)
+    public static final int COLS = 7;
     // Define named constants for drawing
     public static final int CANVAS_WIDTH = Cell.SIZE * COLS;  // the drawing canvas
     public static final int CANVAS_HEIGHT = Cell.SIZE * ROWS;
@@ -54,23 +54,10 @@ public class Board {
         cells[selectedRow][selectedCol].content = player;
 
         // Compute and return the new game state
-        if (cells[selectedRow][0].content == player  // 3-in-the-row
-                && cells[selectedRow][1].content == player
-                && cells[selectedRow][2].content == player
-                || cells[0][selectedCol].content == player // 3-in-the-column
-                && cells[1][selectedCol].content == player
-                && cells[2][selectedCol].content == player
-                || selectedRow == selectedCol     // 3-in-the-diagonal
-                && cells[0][0].content == player
-                && cells[1][1].content == player
-                && cells[2][2].content == player
-                || selectedRow + selectedCol == 2 // 3-in-the-opposite-diagonal
-                && cells[0][2].content == player
-                && cells[1][1].content == player
-                && cells[2][0].content == player) {
+        if (hasWon(player, selectedRow, selectedCol)) {
             return (player == Seed.CROSS) ? State.CROSS_WON : State.NOUGHT_WON;
         } else {
-            // Nobody win. Check for DRAW (all cells occupied) or PLAYING.
+            // Check for DRAW (all cells occupied) or PLAYING
             for (int row = 0; row < ROWS; ++row) {
                 for (int col = 0; col < COLS; ++col) {
                     if (cells[row][col].content == Seed.NO_SEED) {
@@ -80,6 +67,59 @@ public class Board {
             }
             return State.DRAW; // no empty cell, it's a draw
         }
+    }
+
+    /**
+     * Check whether the player has 4 in a line at (rowSelected, colSelected)
+     */
+    public boolean hasWon(Seed player, int rowSelected, int colSelected) {
+        int count;
+
+        // Check row
+        count = 0;
+        for (int col = 0; col < COLS; ++col) {
+            count = (cells[rowSelected][col].content == player) ? count + 1 : 0;
+            if (count == 4) return true;
+        }
+
+        // Check column
+        count = 0;
+        for (int row = 0; row < ROWS; ++row) {
+            count = (cells[row][colSelected].content == player) ? count + 1 : 0;
+            if (count == 4) return true;
+        }
+
+        // Check diagonal (\)
+        int startRow = rowSelected;
+        int startCol = colSelected;
+        while (startRow > 0 && startCol > 0) {
+            startRow--;
+            startCol--;
+        }
+        count = 0;
+        while (startRow < ROWS && startCol < COLS) {
+            count = (cells[startRow][startCol].content == player) ? count + 1 : 0;
+            if (count == 4) return true;
+            startRow++;
+            startCol++;
+        }
+
+        // Check anti-diagonal (/)
+        startRow = rowSelected;
+        startCol = colSelected;
+        while (startRow > 0 && startCol < COLS - 1) {
+            startRow--;
+            startCol++;
+        }
+        count = 0;
+        while (startRow < ROWS && startCol >= 0) {
+            count = (cells[startRow][startCol].content == player) ? count + 1 : 0;
+            if (count == 4) return true;
+            startRow++;
+            startCol--;
+        }
+
+        return false;
     }
 
     /** Paint itself on the graphics canvas, given the Graphics context */
