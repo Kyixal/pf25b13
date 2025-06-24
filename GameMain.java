@@ -3,10 +3,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.sql.*;
 import java.util.Scanner;
-/**
- * Tic-Tac-Toe: Two-player Graphic version with better OO design.
- * The Board and Cell classes are separated in their own classes.
- */
+
 public class GameMain extends JPanel {
     private static final long serialVersionUID = 1L; // to prevent serializable warning
 
@@ -32,32 +29,36 @@ public class GameMain extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {  // mouse-clicked handler
                 int mouseX = e.getX();
-                int mouseY = e.getY();
-                // Get the row and column clicked
-                int row = mouseY / Cell.SIZE;
                 int col = mouseX / Cell.SIZE;
 
                 if (currentState == State.PLAYING) {
-                    if (row >= 0 && row < Board.ROWS && col >= 0 && col < Board.COLS
-                            && board.cells[row][col].content == Seed.NO_SEED) {
-                        // Update cells[][] and return the new game state after the move
-                        currentState = board.stepGame(currentPlayer, row, col);
+                    if (col >= 0 && col < Board.COLS) {
+                        // Find the lowest row to fill in
+                        for (int row = Board.ROWS - 1; row >= 0; row--) {
+                            if (board.cells[row][col].content == Seed.NO_SEED) {
+                                // Update cell and update state
+                                currentState = board.stepGame(currentPlayer, row, col);
 
-                        // Play appropriate sound clip
-                        if (currentState == State.PLAYING) {
-                            SoundEffect.TOKEN.play();
-                        } else {
-                            SoundEffect.DIE.play();
+                                // Play sound effect
+                                if (currentState == State.PLAYING) {
+                                    SoundEffect.TOKEN.play();
+                                } else {
+                                    SoundEffect.DIE.play();
+                                }
+
+                                // Change player's turn
+                                currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
+
+                                break;
+                            }
                         }
-
-                        // Switch player
-                        currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
                     }
-                } else {        // game over
-                    newGame();  // restart the game
+                } else { // game over
+                    newGame();  // start over game
                 }
-                // Refresh the drawing canvas
-                repaint();  // Callback paintComponent().
+
+                // redraw the board
+                repaint();
             }
         });
 
