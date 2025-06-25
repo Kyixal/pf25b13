@@ -8,11 +8,11 @@ public class GameMain extends JPanel {
     private static final long serialVersionUID = 1L; // to prevent serializable warning
 
     // Define named constants for the drawing graphics
-    public static final String TITLE = "Tic Tac Toe";
+    public static final String TITLE = "Connect Four";
     public static final Color COLOR_BG = Color.WHITE;
-    public static final Color COLOR_BG_STATUS = new Color(216, 216, 216);
-    public static final Color COLOR_CROSS = new Color(239, 105, 80);  // Red #EF6950
-    public static final Color COLOR_NOUGHT = new Color(64, 154, 225); // Blue #409AE1
+    public static final Color COLOR_BG_STATUS = new Color(255, 254, 245);
+    public static final Color COLOR_CROSS = new Color(130, 194, 147);  // Red #EF6950
+    public static final Color COLOR_NOUGHT = new Color(250, 214, 147); // Blue #409AE1
     public static final Font FONT_STATUS = new Font("OCR A Extended", Font.PLAIN, 14);
 
     // Define game objects
@@ -43,7 +43,7 @@ public class GameMain extends JPanel {
                                 if (currentState == State.PLAYING) {
                                     SoundEffect.TOKEN.play();
                                 } else {
-                                    SoundEffect.DIE.play();
+                                    SoundEffect.DONE.play();
                                 }
 
                                 // Change player's turn
@@ -111,13 +111,13 @@ public class GameMain extends JPanel {
             statusBar.setForeground(Color.BLACK);
             statusBar.setText((currentPlayer == Seed.CROSS) ? "X's Turn" : "O's Turn");
         } else if (currentState == State.DRAW) {
-            statusBar.setForeground(Color.RED);
+            statusBar.setForeground(Color.BLACK);
             statusBar.setText("It's a Draw! Click to play again.");
         } else if (currentState == State.CROSS_WON) {
-            statusBar.setForeground(Color.RED);
+            statusBar.setForeground(Color.BLACK);
             statusBar.setText("'X' Won! Click to play again.");
         } else if (currentState == State.NOUGHT_WON) {
-            statusBar.setForeground(Color.RED);
+            statusBar.setForeground(Color.BLACK);
             statusBar.setText("'O' Won! Click to play again.");
         }
     }
@@ -136,6 +136,11 @@ public class GameMain extends JPanel {
                 wrongPassword = false;
             }
         }while(wrongPassword);
+
+
+        SoundEffect.BGM.loop();
+
+
         // Run GUI construction codes in Event-Dispatching thread for thread safety
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {

@@ -18,15 +18,16 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public enum SoundEffect {
     TOKEN("connectfour.wav"),
-    EXPLODE("boom.wav"),
-    DIE("lose.wav");
+    DONE("done.wav"),
+    BGM("bgm.wav");
+
 
     /** Nested enumeration for specifying volume */
     public static enum Volume {
         MUTE, LOW, MEDIUM, HIGH
     }
 
-    public static Volume volume = Volume.LOW;
+    public static Volume volume = Volume.MEDIUM;
 
     /** Each sound effect has its own clip, loaded with its own sound file. */
     private Clip clip;
@@ -58,6 +59,15 @@ public enum SoundEffect {
                 clip.stop();   // Stop the player if it is still running
             clip.setFramePosition(0); // rewind to the beginning
             clip.start();     // Start playing
+        }
+    }
+
+    public void loop() {
+        if (volume != Volume.MUTE) {
+            if (clip.isRunning())
+                clip.stop(); // Stop if already playing
+            clip.setFramePosition(0);
+            clip.loop(Clip.LOOP_CONTINUOUSLY); // Loop forever
         }
     }
 

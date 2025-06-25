@@ -4,9 +4,9 @@ import java.awt.*;
  */
 public class Cell {
     // Define named constants for drawing
-    public static final int SIZE = 120; // cell width/height (square)
+    public static final int SIZE = 100; // cell width/height (square)
     // Symbols (cross/nought) are displayed inside a cell, with padding from border
-    public static final int PADDING = SIZE / 5;
+    public static final int PADDING = 6;
     public static final int SEED_SIZE = SIZE - PADDING * 2;
     public static final int SEED_STROKE_WIDTH = 8; // pen's stroke width
 
@@ -37,15 +37,14 @@ public class Cell {
         // Draw the Seed if it is not empty
         int x1 = col * SIZE + PADDING;
         int y1 = row * SIZE + PADDING;
+        int diameter = SIZE - 2 * PADDING;
+
         if (content == Seed.CROSS) {
-            g2d.setColor(GameMain.COLOR_CROSS);  // draw a 2-line cross
-            int x2 = (col + 1) * SIZE - PADDING;
-            int y2 = (row + 1) * SIZE - PADDING;
-            g2d.drawLine(x1, y1, x2, y2);
-            g2d.drawLine(x2, y1, x1, y2);
-        } else if (content == Seed.NOUGHT) {  // draw a circle
-            g2d.setColor(GameMain.COLOR_NOUGHT);
-            g2d.drawOval(x1, y1, SEED_SIZE, SEED_SIZE);
+            g2d.setColor(GameMain.COLOR_CROSS);  // lingkaran untuk CROSS
+            g2d.fillOval(x1, y1, diameter, diameter);
+        } else if (content == Seed.NOUGHT) {
+            g2d.setColor(GameMain.COLOR_NOUGHT); // lingkaran untuk NOUGHT
+            g2d.fillOval(x1, y1, diameter, diameter);
         }
     }
 }

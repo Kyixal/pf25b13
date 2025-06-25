@@ -9,10 +9,8 @@ public class Board {
     // Define named constants for drawing
     public static final int CANVAS_WIDTH = Cell.SIZE * COLS;  // the drawing canvas
     public static final int CANVAS_HEIGHT = Cell.SIZE * ROWS;
-    public static final int GRID_WIDTH = 8;  // Grid-line's width
-    public static final int GRID_WIDTH_HALF = GRID_WIDTH / 2; // Grid-line's half-width
-    public static final Color COLOR_GRID = Color.LIGHT_GRAY;  // grid lines
-    public static final int Y_OFFSET = 1;  // Fine tune for better display
+    public static final Color COLOR_GRID = new Color(101, 92, 158);
+
 
     // Define properties (package-visible)
     /** Composes of 2D array of ROWS-by-COLS Cell instances */
@@ -124,17 +122,23 @@ public class Board {
 
     /** Paint itself on the graphics canvas, given the Graphics context */
     public void paint(Graphics g) {
-        // Draw the grid-lines
-        g.setColor(COLOR_GRID);
-        for (int row = 1; row < ROWS; ++row) {
-            g.fillRoundRect(0, Cell.SIZE * row - GRID_WIDTH_HALF,
-                    CANVAS_WIDTH - 1, GRID_WIDTH,
-                    GRID_WIDTH, GRID_WIDTH);
-        }
-        for (int col = 1; col < COLS; ++col) {
-            g.fillRoundRect(Cell.SIZE * col - GRID_WIDTH_HALF, 0 + Y_OFFSET,
-                    GRID_WIDTH, CANVAS_HEIGHT - 1,
-                    GRID_WIDTH, GRID_WIDTH);
+        Graphics2D g2d = (Graphics2D) g;
+
+        // Gambar background papan
+        g2d.setColor(COLOR_GRID);
+        g2d.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        //Draw circle cells
+        for (int row = 0; row < ROWS; ++row) {
+            for (int col = 0; col < COLS; ++col) {
+                int holePadding = 6; // tambahkan sedikit padding
+                int holeX = col * Cell.SIZE+holePadding;
+                int holeY = row * Cell.SIZE+holePadding;
+                int holeSize = Cell.SIZE-2*holePadding;
+
+                g2d.setColor(Color.WHITE);
+                g2d.fillOval(holeX, holeY, holeSize, holeSize);
+            }
         }
 
         // Draw all the cells
