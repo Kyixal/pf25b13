@@ -16,9 +16,9 @@ public class GameMain extends JPanel {
     private Board board;
     private State currentState;
     private Seed currentPlayer;
-    private JLabel statusBar;
     private int crossScore = 0;
     private int noughtScore = 0;
+    private JLabel statusBar;
     private JLabel scoreLabel;
 
     public GameMain() {
@@ -32,6 +32,7 @@ public class GameMain extends JPanel {
                     if (col >= 0 && col < Board.COLS) {
                         for (int row = Board.ROWS - 1; row >= 0; row--) {
                             if (board.cells[row][col].content == Seed.NO_SEED) {
+                                // Update board[][] and return the new game state after the move
                                 currentState = board.stepGame(currentPlayer, row, col);
 
                                 // Update score
@@ -42,12 +43,12 @@ public class GameMain extends JPanel {
                                     noughtScore++;
                                     updateScoreLabel();
                                 }
-
                                 if (currentState == State.PLAYING) {
                                     SoundEffect.TOKEN.play();
                                 } else {
                                     SoundEffect.DONE.play();
                                 }
+                                // Switch player
                                 currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
                                 break;
                             }
@@ -56,7 +57,8 @@ public class GameMain extends JPanel {
                 } else {
                     newGame();
                 }
-                repaint();
+                // Refresh the drawing canvas
+                repaint();  // Callback paintComponent()
             }
         });
 
