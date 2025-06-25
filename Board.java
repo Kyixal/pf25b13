@@ -3,7 +3,6 @@ import java.awt.*;
  * The Board class models the ROWS-by-COLS game board.
  */
 
-
 public class Board {
     // Define named constants
     public static final int ROWS = 6;  // ROWS x COLS cells (Connect Four)
@@ -20,9 +19,6 @@ public class Board {
 
     private Point winStart = null;
     private Point winEnd = null;
-
-    public Point getWinStart() { return winStart; }
-    public Point getWinEnd() { return winEnd; }
 
     /** Constructor to initialize the game board */
     public Board() {
