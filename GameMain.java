@@ -132,7 +132,7 @@ public class GameMain extends JPanel {
         SoundEffect.BGM.loop();
 
         SwingUtilities.invokeLater(() -> {
-            new WelcomeScreen(); // welcome
+            new WelcomeScreen(); //
         });
     }
 }
