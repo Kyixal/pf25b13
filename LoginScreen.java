@@ -1,80 +1,80 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 
 public class LoginScreen extends JFrame {
     public LoginScreen() {
         setTitle("Login to Connect Four");
-        setSize(600, 350);
+        setSize(420, 650);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setResizable(false);
 
-        // Panel utama, pakai BorderLayout
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(Color.WHITE);
+        // ====== Background Image ======
+        ImageIcon bgIcon = new ImageIcon("src/assets/login.jpg");
+        Image scaledImage = bgIcon.getImage().getScaledInstance(420, 650, Image.SCALE_SMOOTH);
+        JLabel backgroundLabel = new JLabel(new ImageIcon(scaledImage));
+        backgroundLabel.setLayout(new BorderLayout());
+        setContentPane(backgroundLabel);
 
-        // Gambar di sisi kiri
-        JLabel imageLabel = new JLabel();
-        imageLabel.setIcon(new ImageIcon("src/assets/login.jpg")); // <-- Ganti dengan path gambarmu
-        imageLabel.setPreferredSize(new Dimension(250, 0));
-
-        // Panel form di sisi kanan
+        // ====== Panel form transparan di bawah ======
         JPanel formPanel = new JPanel();
-        formPanel.setBackground(new Color(255, 228, 21));
+        formPanel.setOpaque(false);
         formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
-        formPanel.setBorder(BorderFactory.createEmptyBorder(40, 30, 40, 30));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 30, 30));
 
-        JLabel title = new JLabel("Welcome Back!");
-        title.setFont(new Font("Arial", Font.BOLD, 24));
+        JLabel title = new JLabel("Welcome Back!", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 22));
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        title.setForeground(new Color(50, 50, 100));
+        title.setForeground(new Color(55, 71, 79));
 
         JTextField usernameField = new JTextField();
         usernameField.setMaximumSize(new Dimension(300, 35));
         usernameField.setFont(new Font("Arial", Font.PLAIN, 14));
         usernameField.setBorder(BorderFactory.createTitledBorder("Username"));
+        usernameField.setBackground(new Color(255, 253, 231));
 
         JPasswordField passwordField = new JPasswordField();
         passwordField.setMaximumSize(new Dimension(300, 35));
         passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
         passwordField.setBorder(BorderFactory.createTitledBorder("Password"));
+        passwordField.setBackground(new Color(255, 253, 231));
 
         JButton loginButton = new JButton("Login");
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        loginButton.setBackground(new Color(130, 194, 147));
+        loginButton.setBackground(new Color(0, 191, 165));
         loginButton.setForeground(Color.WHITE);
         loginButton.setFocusPainted(false);
         loginButton.setFont(new Font("Arial", Font.BOLD, 16));
         loginButton.setMaximumSize(new Dimension(150, 35));
 
+        formPanel.add(Box.createVerticalGlue());
         formPanel.add(title);
-        formPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        formPanel.add(Box.createRigidArea(new Dimension(0, 15)));
         formPanel.add(usernameField);
         formPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         formPanel.add(passwordField);
-        formPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        formPanel.add(Box.createRigidArea(new Dimension(0, 15)));
         formPanel.add(loginButton);
+        formPanel.add(Box.createVerticalGlue());
 
-        // Tambahkan panel ke frame
-        mainPanel.add(imageLabel, BorderLayout.WEST);
-        mainPanel.add(formPanel, BorderLayout.CENTER);
-        add(mainPanel);
+        backgroundLabel.add(formPanel, BorderLayout.SOUTH);
 
-        // Aksi tombol login
+        // ====== Aksi Login ======
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
+
+            if (username.trim().isEmpty() || password.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Username dan Password tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             try {
                 String truePassword = GameMain.getPassword(username);
                 if (password.equals(truePassword)) {
                     dispose(); // Tutup login
-                    SwingUtilities.invokeLater(() -> {
-                        JFrame frame = new JFrame(GameMain.TITLE);
-                        frame.setContentPane(new GameMain());
-                        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                        frame.pack();
-                        frame.setLocationRelativeTo(null);
-                        frame.setVisible(true);
-                    });
+                    SwingUtilities.invokeLater(() -> new ModeSelectionScreen());
                 } else {
                     JOptionPane.showMessageDialog(this, "Password salah!", "Error", JOptionPane.ERROR_MESSAGE);
                 }

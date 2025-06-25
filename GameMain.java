@@ -41,37 +41,16 @@ public class GameMain extends JPanel {
                                 if (currentState == State.CROSS_WON) {
                                     crossScore++;
                                     updateScoreLabel();
+                                    SoundEffect.DONE.play();
                                 } else if (currentState == State.NOUGHT_WON) {
                                     noughtScore++;
                                     updateScoreLabel();
+                                    SoundEffect.DONE.play();
                                 }
 
                                 SoundEffect.TOKEN.play();
 
-                                if (mode == GameMode.VS_AI && currentPlayer == Seed.CROSS && currentState == State.PLAYING) {
-                                    currentPlayer = Seed.NOUGHT;
-
-                                    int bestCol = findBestMove();
-                                    for (int aiRow = Board.ROWS - 1; aiRow >= 0; aiRow--) {
-                                        if (board.cells[aiRow][bestCol].content == Seed.NO_SEED) {
-                                            currentState = board.stepGame(Seed.NOUGHT, aiRow, bestCol);
-                                            SoundEffect.DONE.play();
-
-                                            if (currentState == State.NOUGHT_WON) {
-                                                noughtScore++;
-                                                updateScoreLabel();
-                                            }
-
-                                            if (currentState == State.PLAYING) {
-                                                currentPlayer = Seed.CROSS;
-                                            }
-                                            break;
-                                        }
-                                    }
-
-                                } else if (mode == GameMode.MULTIPLAYER) {
-                                    currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
-                                }
+                                currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
 
                                 repaint();
                                 break;
@@ -149,69 +128,6 @@ public class GameMain extends JPanel {
 
     private void updateScoreLabel() {
         scoreLabel.setText("Score - Player 1: " + crossScore + " | Player 2: " + noughtScore);
-    }
-
-    private int findBestMove() {
-        int bestScore = Integer.MIN_VALUE;
-        int bestCol = -1;
-
-        for (int col = 0; col < Board.COLS; col++) {
-            for (int row = Board.ROWS - 1; row >= 0; row--) {
-                if (board.cells[row][col].content == Seed.NO_SEED) {
-                    board.cells[row][col].content = Seed.NOUGHT;
-                    int score = minimax(0, false);
-                    board.cells[row][col].content = Seed.NO_SEED;
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestCol = col;
-                    }
-                    break;
-                }
-            }
-        }
-        return bestCol;
-    }
-
-    private int minimax(int depth, boolean isMaximizing) {
-        State state = evaluateState();
-        if (state == State.NOUGHT_WON) return 10 - depth;
-        if (state == State.CROSS_WON) return -10 + depth;
-        if (state == State.DRAW) return 0;
-
-        int best = isMaximizing ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-
-        for (int col = 0; col < Board.COLS; col++) {
-            for (int row = Board.ROWS - 1; row >= 0; row--) {
-                if (board.cells[row][col].content == Seed.NO_SEED) {
-                    board.cells[row][col].content = isMaximizing ? Seed.NOUGHT : Seed.CROSS;
-                    int score = minimax(depth + 1, !isMaximizing);
-                    board.cells[row][col].content = Seed.NO_SEED;
-
-                    if (isMaximizing) best = Math.max(best, score);
-                    else best = Math.min(best, score);
-                    break;
-                }
-            }
-        }
-        return best;
-    }
-
-    private State evaluateState() {
-        for (int row = 0; row < Board.ROWS; row++) {
-            for (int col = 0; col < Board.COLS; col++) {
-                Seed seed = board.cells[row][col].content;
-                if (seed != Seed.NO_SEED && board.hasWon(seed, row, col)) {
-                    return seed == Seed.CROSS ? State.CROSS_WON : State.NOUGHT_WON;
-                }
-            }
-        }
-        for (int row = 0; row < Board.ROWS; row++) {
-            for (int col = 0; col < Board.COLS; col++) {
-                if (board.cells[row][col].content == Seed.NO_SEED)
-                    return State.PLAYING;
-            }
-        }
-        return State.DRAW;
     }
 
     public static String getPassword(String username) throws ClassNotFoundException {

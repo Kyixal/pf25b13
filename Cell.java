@@ -31,11 +31,18 @@ public class Cell {
         int x = col * SIZE;
         int y = row * SIZE;
 
-        // Lingkaran putih transparan sebagai lubang (sedikit padding agar mirip Connect Four asli)
+        // Lingkaran dasar putih transparan sebagai lubang
         g.setColor(new Color(255, 255, 255, 190));
         g.fillOval(x + PADDING, y + PADDING, SIZE - 2 * PADDING, SIZE - 2 * PADDING);
 
-        // Gambar simbol jika sudah diisi
+        // Jika cell diisi CROSS atau NOUGHT
+        if (content == Seed.CROSS || content == Seed.NOUGHT) {
+            // Lingkaran background warna token
+            g.setColor(content == Seed.CROSS ? GameMain.COLOR_CROSS : GameMain.COLOR_NOUGHT);
+            g.fillOval(x + PADDING + 2, y + PADDING + 2, SIZE - 2 * PADDING - 4, SIZE - 2 * PADDING - 4);
+        }
+
+        // Gambar token (gambar X atau O)
         if (content == Seed.CROSS) {
             g.drawImage(xImg, x + PADDING + 5, y + PADDING + 5, null);
         } else if (content == Seed.NOUGHT) {

@@ -48,6 +48,8 @@ public class Board {
                 cells[row][col].newGame(); // clear the cell content
             }
         }
+        winStart = null;
+        winEnd = null;
     }
 
     /**
@@ -171,7 +173,7 @@ public class Board {
         //Draw circle cells
         for (int row = 0; row < ROWS; ++row) {
             for (int col = 0; col < COLS; ++col) {
-                int holePadding = 6; // tambahkan sedikit padding
+                int holePadding = 6;
                 int holeX = col * Cell.SIZE+holePadding;
                 int holeY = row * Cell.SIZE+holePadding;
                 int holeSize = Cell.SIZE-2*holePadding;
@@ -186,6 +188,20 @@ public class Board {
             for (int col = 0; col < COLS; ++col) {
                 cells[row][col].paint(g);  // ask the cell to paint itself
             }
+        }
+
+        // Gambar garis putih kalau menang
+        if (winStart != null && winEnd != null) {
+            g2d = (Graphics2D) g;
+            g2d.setColor(Color.WHITE);
+            g2d.setStroke(new BasicStroke(6));
+
+            int startX = winStart.x * Cell.SIZE + Cell.SIZE / 2;
+            int startY = winStart.y * Cell.SIZE + Cell.SIZE / 2;
+            int endX = winEnd.x * Cell.SIZE + Cell.SIZE / 2;
+            int endY = winEnd.y * Cell.SIZE + Cell.SIZE / 2;
+
+            g2d.drawLine(startX, startY, endX, endY);
         }
     }
 }
