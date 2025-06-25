@@ -2,6 +2,8 @@ import java.awt.*;
 /**
  * The Board class models the ROWS-by-COLS game board.
  */
+
+
 public class Board {
     // Define named constants
     public static final int ROWS = 6;  // ROWS x COLS cells (Connect Four)
@@ -15,6 +17,12 @@ public class Board {
     // Define properties (package-visible)
     /** Composes of 2D array of ROWS-by-COLS Cell instances */
     Cell[][] cells;
+
+    private Point winStart = null;
+    private Point winEnd = null;
+
+    public Point getWinStart() { return winStart; }
+    public Point getWinEnd() { return winEnd; }
 
     /** Constructor to initialize the game board */
     public Board() {
@@ -76,15 +84,31 @@ public class Board {
         // Check row
         count = 0;
         for (int col = 0; col < COLS; ++col) {
-            count = (cells[rowSelected][col].content == player) ? count + 1 : 0;
-            if (count == 4) return true;
+            if (cells[rowSelected][col].content == player) {
+                count++;
+                if (count == 1) winStart = new Point(col, rowSelected);
+                if (count == 4) {
+                    winEnd = new Point(col, rowSelected);
+                    return true;
+                }
+            } else {
+                count = 0;
+            }
         }
 
         // Check column
         count = 0;
         for (int row = 0; row < ROWS; ++row) {
-            count = (cells[row][colSelected].content == player) ? count + 1 : 0;
-            if (count == 4) return true;
+            if (cells[row][colSelected].content == player) {
+                count++;
+                if (count == 1) winStart = new Point(colSelected, row);
+                if (count == 4) {
+                    winEnd = new Point(colSelected, row);
+                    return true;
+                }
+            } else {
+                count = 0;
+            }
         }
 
         // Check diagonal (\)
@@ -96,8 +120,16 @@ public class Board {
         }
         count = 0;
         while (startRow < ROWS && startCol < COLS) {
-            count = (cells[startRow][startCol].content == player) ? count + 1 : 0;
-            if (count == 4) return true;
+            if (cells[startRow][startCol].content == player) {
+                count++;
+                if (count == 1) winStart = new Point(startCol, startRow);
+                if (count == 4) {
+                    winEnd = new Point(startCol, startRow);
+                    return true;
+                }
+            } else {
+                count = 0;
+            }
             startRow++;
             startCol++;
         }
@@ -111,8 +143,16 @@ public class Board {
         }
         count = 0;
         while (startRow < ROWS && startCol >= 0) {
-            count = (cells[startRow][startCol].content == player) ? count + 1 : 0;
-            if (count == 4) return true;
+            if (cells[startRow][startCol].content == player) {
+                count++;
+                if (count == 1) winStart = new Point(startCol, startRow);
+                if (count == 4) {
+                    winEnd = new Point(startCol, startRow);
+                    return true;
+                }
+            } else {
+                count = 0;
+            }
             startRow++;
             startCol--;
         }

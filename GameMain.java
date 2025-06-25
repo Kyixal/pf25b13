@@ -6,7 +6,7 @@ import java.sql.*;
 public class GameMain extends JPanel {
     private static final long serialVersionUID = 1L;
 
-    public static final String TITLE = "Connect Four";
+    public static final String TITLE = "Connect-4";
     public static final Color COLOR_BG = Color.WHITE;
     public static final Color COLOR_BG_STATUS = new Color(255, 254, 245);
     public static final Color COLOR_CROSS = new Color(130, 194, 147);
@@ -17,6 +17,9 @@ public class GameMain extends JPanel {
     private State currentState;
     private Seed currentPlayer;
     private JLabel statusBar;
+    private int crossScore = 0;
+    private int noughtScore = 0;
+    private JLabel scoreLabel;
 
     public GameMain() {
         super.addMouseListener(new MouseAdapter() {
@@ -30,6 +33,16 @@ public class GameMain extends JPanel {
                         for (int row = Board.ROWS - 1; row >= 0; row--) {
                             if (board.cells[row][col].content == Seed.NO_SEED) {
                                 currentState = board.stepGame(currentPlayer, row, col);
+
+                                // Update score
+                                if (currentState == State.CROSS_WON) {
+                                    crossScore++;
+                                    updateScoreLabel();
+                                } else if (currentState == State.NOUGHT_WON) {
+                                    noughtScore++;
+                                    updateScoreLabel();
+                                }
+
                                 if (currentState == State.PLAYING) {
                                     SoundEffect.TOKEN.play();
                                 } else {
@@ -51,14 +64,29 @@ public class GameMain extends JPanel {
         statusBar.setFont(FONT_STATUS);
         statusBar.setBackground(COLOR_BG_STATUS);
         statusBar.setOpaque(true);
-        statusBar.setPreferredSize(new Dimension(300, 30));
         statusBar.setHorizontalAlignment(JLabel.LEFT);
         statusBar.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 12));
 
-        super.setLayout(new BorderLayout());
-        super.add(statusBar, BorderLayout.PAGE_END);
+        // Score label
+        scoreLabel = new JLabel("Score - Player 1: 0 | Player 2: 0");
+        scoreLabel.setFont(FONT_STATUS);
+        scoreLabel.setBackground(COLOR_BG_STATUS);
+        scoreLabel.setOpaque(true);
+        scoreLabel.setHorizontalAlignment(JLabel.RIGHT);
+        scoreLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 12));
+
+        // Wrap both status bar and score in a horizontal panel
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.add(statusBar, BorderLayout.WEST);
+        bottomPanel.add(scoreLabel, BorderLayout.EAST);
+        bottomPanel.setBackground(COLOR_BG_STATUS);
+        bottomPanel.setPreferredSize(new Dimension(Board.CANVAS_WIDTH, 30));
+
+        this.setLayout(new BorderLayout());
+        this.add(bottomPanel, BorderLayout.SOUTH);
+
+        //This ensures the game does not get covered by the bottom panel.
         super.setPreferredSize(new Dimension(Board.CANVAS_WIDTH, Board.CANVAS_HEIGHT + 30));
-        super.setBorder(BorderFactory.createLineBorder(COLOR_BG_STATUS, 2, false));
 
         initGame();
         newGame();
@@ -86,16 +114,33 @@ public class GameMain extends JPanel {
 
         if (currentState == State.PLAYING) {
             statusBar.setForeground(Color.BLACK);
-            statusBar.setText((currentPlayer == Seed.CROSS) ? "X's Turn" : "O's Turn");
+            statusBar.setText((currentPlayer == Seed.CROSS) ? "Player 1's Turn" : "Player 2's Turn");
         } else if (currentState == State.DRAW) {
             statusBar.setForeground(Color.BLACK);
             statusBar.setText("It's a Draw! Click to play again.");
         } else if (currentState == State.CROSS_WON) {
             statusBar.setForeground(Color.BLACK);
-            statusBar.setText("'X' Won! Click to play again.");
+            statusBar.setText("Player 1 Won! Click to play again.");
         } else if (currentState == State.NOUGHT_WON) {
             statusBar.setForeground(Color.BLACK);
-            statusBar.setText("'O' Won! Click to play again.");
+            statusBar.setText("Player 2 Won! Click to play again.");
+        }
+
+        if (currentState == State.CROSS_WON || currentState == State.NOUGHT_WON) {
+            Point start = board.getWinStart();
+            Point end = board.getWinEnd();
+            if (start != null && end != null) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setColor(Color.WHITE);
+                g2.setStroke(new BasicStroke(6));
+
+                int x1 = start.x * Cell.SIZE + Cell.SIZE / 2;
+                int y1 = start.y * Cell.SIZE + Cell.SIZE / 2;
+                int x2 = end.x * Cell.SIZE + Cell.SIZE / 2;
+                int y2 = end.y * Cell.SIZE + Cell.SIZE / 2;
+
+                g2.drawLine(x1, y1, x2, y2);
+            }
         }
     }
 
@@ -132,7 +177,7 @@ public class GameMain extends JPanel {
         SwingUtilities.invokeLater(() -> new WelcomeScreen());
     }
 
-    // Untuk dipanggil dari LoginScreen jika login berhasil
+    // Call out LoginScreen
     public static void launchGameBoard() {
         JFrame frame = new JFrame(TITLE);
         frame.setContentPane(new GameMain());
@@ -140,5 +185,9 @@ public class GameMain extends JPanel {
         frame.pack();
         frame.setLocationRelativeTo(null); // center window
         frame.setVisible(true);
+    }
+
+    private void updateScoreLabel() {
+        scoreLabel.setText("Score - Player 1: " + crossScore + " | Player 2: " + noughtScore);
     }
 }
