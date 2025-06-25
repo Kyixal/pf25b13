@@ -3,27 +3,34 @@ import java.awt.*;
 
 public class WelcomeScreen extends JFrame {
     public WelcomeScreen() {
-        setTitle("Welcome");
-        setSize(500, 350);
+        setTitle("Welcome to Connect Four");
+        setSize(420, 650);  // Ukuran frame lebih kecil
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        setResizable(false);
 
-        // Gambar sebagai background
-        JLabel background = new JLabel(new ImageIcon(getClass().getResource("/assets/welcome.jpg")));
+        int width = getWidth();
+        int height = getHeight();
+
+        ImageIcon originalIcon = new ImageIcon(getClass().getResource("/assets/welcome.jpg"));
+        Image scaledImage = originalIcon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        JLabel background = new JLabel(new ImageIcon(scaledImage));
         background.setLayout(new BorderLayout());
         setContentPane(background);
 
-        // Tambahkan label dan tombol ke atas background
         JLabel title = new JLabel("Welcome to Connect Four!", SwingConstants.CENTER);
-        title.setFont(new Font("Times New Roman", Font.BOLD, 20));
-        title.setForeground(Color.WHITE); // sesuaikan dengan warna background
+        title.setFont(new Font("Times New Roman", Font.BOLD, 18));
+        title.setForeground(Color.WHITE);
         background.add(title, BorderLayout.NORTH);
 
         JButton startButton = new JButton("Start Game");
-        startButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        startButton.setFont(new Font("Arial", Font.BOLD, 16));
+        startButton.setBackground(new Color(0, 191, 165));
+        startButton.setForeground(Color.WHITE);
+        startButton.setFocusPainted(false);
         startButton.addActionListener(e -> {
-            dispose(); // tutup WelcomeScreen
-            new LoginScreen(); // buka login screen
+            dispose();
+            new LoginScreen();
         });
         background.add(startButton, BorderLayout.SOUTH);
 
