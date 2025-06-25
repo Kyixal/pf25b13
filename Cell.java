@@ -1,50 +1,45 @@
 import java.awt.*;
+import javax.swing.*;
+
 /**
  * The Cell class models each individual cell of the game board.
  */
 public class Cell {
-    // Define named constants for drawing
-    public static final int SIZE = 100; // cell width/height (square)
-    // Symbols (cross/nought) are displayed inside a cell, with padding from border
-    public static final int PADDING = 6;
-    public static final int SEED_SIZE = SIZE - PADDING * 2;
-    public static final int SEED_STROKE_WIDTH = 8; // pen's stroke width
+    public static final int SIZE = 90;  // Ukuran cell
+    public static final int PADDING = 5;
 
-    // Define properties (package-visible)
-    /** Content of this cell (Seed.EMPTY, Seed.CROSS, or Seed.NOUGHT) */
-    Seed content;
-    /** Row and column of this cell */
-    int row, col;
+    public int row, col;
+    public Seed content;
 
-    /** Constructor to initialize this cell with the specified row and col */
+    // Gambar untuk CROSS dan NOUGHT
+    private static final Image xImg = new ImageIcon("src/assets/x.png")
+            .getImage().getScaledInstance(SIZE - 2 * PADDING - 10, SIZE - 2 * PADDING - 10, Image.SCALE_SMOOTH);
+    private static final Image oImg = new ImageIcon("src/assets/o.png")
+            .getImage().getScaledInstance(SIZE - 2 * PADDING - 10, SIZE - 2 * PADDING - 10, Image.SCALE_SMOOTH);
+
     public Cell(int row, int col) {
         this.row = row;
         this.col = col;
-        content = Seed.NO_SEED;
+        this.content = Seed.NO_SEED;
     }
 
-    /** Reset this cell's content to EMPTY, ready for new game */
     public void newGame() {
         content = Seed.NO_SEED;
     }
 
-    /** Paint itself on the graphics canvas, given the Graphics context */
     public void paint(Graphics g) {
-        // Use Graphics2D which allows us to set the pen's stroke
-        Graphics2D g2d = (Graphics2D)g;
-        g2d.setStroke(new BasicStroke(SEED_STROKE_WIDTH,
-                BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        // Draw the Seed if it is not empty
-        int x1 = col * SIZE + PADDING;
-        int y1 = row * SIZE + PADDING;
-        int diameter = SIZE - 2 * PADDING;
+        int x = col * SIZE;
+        int y = row * SIZE;
 
+        // Lingkaran putih transparan sebagai lubang (sedikit padding agar mirip Connect Four asli)
+        g.setColor(new Color(255, 255, 255, 190));
+        g.fillOval(x + PADDING, y + PADDING, SIZE - 2 * PADDING, SIZE - 2 * PADDING);
+
+        // Gambar simbol jika sudah diisi
         if (content == Seed.CROSS) {
-            g2d.setColor(GameMain.COLOR_CROSS);  // lingkaran untuk CROSS
-            g2d.fillOval(x1, y1, diameter, diameter);
+            g.drawImage(xImg, x + PADDING + 5, y + PADDING + 5, null);
         } else if (content == Seed.NOUGHT) {
-            g2d.setColor(GameMain.COLOR_NOUGHT); // lingkaran untuk NOUGHT
-            g2d.fillOval(x1, y1, diameter, diameter);
+            g.drawImage(oImg, x + PADDING + 5, y + PADDING + 5, null);
         }
     }
 }

@@ -6,23 +6,27 @@ import java.sql.*;
 public class GameMain extends JPanel {
     private static final long serialVersionUID = 1L;
 
-    public static final String TITLE = "Connect-4";
+    public static final String TITLE = "Connect Four";
     public static final Color COLOR_BG = Color.WHITE;
     public static final Color COLOR_BG_STATUS = new Color(255, 254, 245);
     public static final Color COLOR_CROSS = new Color(130, 194, 147);
     public static final Color COLOR_NOUGHT = new Color(250, 214, 147);
     public static final Font FONT_STATUS = new Font("OCR A Extended", Font.PLAIN, 14);
 
+    private final GameMode mode;
     private Board board;
     private State currentState;
     private Seed currentPlayer;
     private int crossScore = 0;
     private int noughtScore = 0;
+
     private JLabel statusBar;
     private JLabel scoreLabel;
 
-    public GameMain() {
-        super.addMouseListener(new MouseAdapter() {
+    public GameMain(GameMode mode) {
+        this.mode = mode;
+
+        addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int mouseX = e.getX();
@@ -32,10 +36,8 @@ public class GameMain extends JPanel {
                     if (col >= 0 && col < Board.COLS) {
                         for (int row = Board.ROWS - 1; row >= 0; row--) {
                             if (board.cells[row][col].content == Seed.NO_SEED) {
-                                // Update board[][] and return the new game state after the move
                                 currentState = board.stepGame(currentPlayer, row, col);
 
-                                // Update score
                                 if (currentState == State.CROSS_WON) {
                                     crossScore++;
                                     updateScoreLabel();
@@ -43,25 +45,47 @@ public class GameMain extends JPanel {
                                     noughtScore++;
                                     updateScoreLabel();
                                 }
-                                if (currentState == State.PLAYING) {
-                                    SoundEffect.TOKEN.play();
-                                } else {
-                                    SoundEffect.DONE.play();
+
+                                SoundEffect.TOKEN.play();
+
+                                if (mode == GameMode.VS_AI && currentPlayer == Seed.CROSS && currentState == State.PLAYING) {
+                                    currentPlayer = Seed.NOUGHT;
+
+                                    int bestCol = findBestMove();
+                                    for (int aiRow = Board.ROWS - 1; aiRow >= 0; aiRow--) {
+                                        if (board.cells[aiRow][bestCol].content == Seed.NO_SEED) {
+                                            currentState = board.stepGame(Seed.NOUGHT, aiRow, bestCol);
+                                            SoundEffect.DONE.play();
+
+                                            if (currentState == State.NOUGHT_WON) {
+                                                noughtScore++;
+                                                updateScoreLabel();
+                                            }
+
+                                            if (currentState == State.PLAYING) {
+                                                currentPlayer = Seed.CROSS;
+                                            }
+                                            break;
+                                        }
+                                    }
+
+                                } else if (mode == GameMode.MULTIPLAYER) {
+                                    currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
                                 }
-                                // Switch player
-                                currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
+
+                                repaint();
                                 break;
                             }
                         }
                     }
                 } else {
                     newGame();
+                    repaint();
                 }
-                // Refresh the drawing canvas
-                repaint();  // Callback paintComponent()
             }
         });
 
+        // Status bar
         statusBar = new JLabel();
         statusBar.setFont(FONT_STATUS);
         statusBar.setBackground(COLOR_BG_STATUS);
@@ -69,7 +93,7 @@ public class GameMain extends JPanel {
         statusBar.setHorizontalAlignment(JLabel.LEFT);
         statusBar.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 12));
 
-        // Score label
+        // Score bar
         scoreLabel = new JLabel("Score - Player 1: 0 | Player 2: 0");
         scoreLabel.setFont(FONT_STATUS);
         scoreLabel.setBackground(COLOR_BG_STATUS);
@@ -77,18 +101,16 @@ public class GameMain extends JPanel {
         scoreLabel.setHorizontalAlignment(JLabel.RIGHT);
         scoreLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 12));
 
-        // Wrap both status bar and score in a horizontal panel
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.add(statusBar, BorderLayout.WEST);
         bottomPanel.add(scoreLabel, BorderLayout.EAST);
         bottomPanel.setBackground(COLOR_BG_STATUS);
         bottomPanel.setPreferredSize(new Dimension(Board.CANVAS_WIDTH, 30));
 
-        this.setLayout(new BorderLayout());
-        this.add(bottomPanel, BorderLayout.SOUTH);
-
-        //This ensures the game does not get covered by the bottom panel.
-        super.setPreferredSize(new Dimension(Board.CANVAS_WIDTH, Board.CANVAS_HEIGHT + 30));
+        setLayout(new BorderLayout());
+        add(bottomPanel, BorderLayout.SOUTH);
+        setPreferredSize(new Dimension(Board.CANVAS_WIDTH, Board.CANVAS_HEIGHT + 30));
+        setBorder(BorderFactory.createLineBorder(COLOR_BG_STATUS, 2, false));
 
         initGame();
         newGame();
@@ -99,11 +121,7 @@ public class GameMain extends JPanel {
     }
 
     public void newGame() {
-        for (int row = 0; row < Board.ROWS; ++row) {
-            for (int col = 0; col < Board.COLS; ++col) {
-                board.cells[row][col].content = Seed.NO_SEED;
-            }
-        }
+        board.newGame();
         currentPlayer = Seed.CROSS;
         currentState = State.PLAYING;
     }
@@ -127,69 +145,98 @@ public class GameMain extends JPanel {
             statusBar.setForeground(Color.BLACK);
             statusBar.setText("Player 2 Won! Click to play again.");
         }
+    }
 
-        if (currentState == State.CROSS_WON || currentState == State.NOUGHT_WON) {
-            Point start = board.getWinStart();
-            Point end = board.getWinEnd();
-            if (start != null && end != null) {
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setColor(Color.WHITE);
-                g2.setStroke(new BasicStroke(6));
+    private void updateScoreLabel() {
+        scoreLabel.setText("Score - Player 1: " + crossScore + " | Player 2: " + noughtScore);
+    }
 
-                int x1 = start.x * Cell.SIZE + Cell.SIZE / 2;
-                int y1 = start.y * Cell.SIZE + Cell.SIZE / 2;
-                int x2 = end.x * Cell.SIZE + Cell.SIZE / 2;
-                int y2 = end.y * Cell.SIZE + Cell.SIZE / 2;
+    private int findBestMove() {
+        int bestScore = Integer.MIN_VALUE;
+        int bestCol = -1;
 
-                g2.drawLine(x1, y1, x2, y2);
+        for (int col = 0; col < Board.COLS; col++) {
+            for (int row = Board.ROWS - 1; row >= 0; row--) {
+                if (board.cells[row][col].content == Seed.NO_SEED) {
+                    board.cells[row][col].content = Seed.NOUGHT;
+                    int score = minimax(0, false);
+                    board.cells[row][col].content = Seed.NO_SEED;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestCol = col;
+                    }
+                    break;
+                }
             }
         }
+        return bestCol;
+    }
+
+    private int minimax(int depth, boolean isMaximizing) {
+        State state = evaluateState();
+        if (state == State.NOUGHT_WON) return 10 - depth;
+        if (state == State.CROSS_WON) return -10 + depth;
+        if (state == State.DRAW) return 0;
+
+        int best = isMaximizing ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+        for (int col = 0; col < Board.COLS; col++) {
+            for (int row = Board.ROWS - 1; row >= 0; row--) {
+                if (board.cells[row][col].content == Seed.NO_SEED) {
+                    board.cells[row][col].content = isMaximizing ? Seed.NOUGHT : Seed.CROSS;
+                    int score = minimax(depth + 1, !isMaximizing);
+                    board.cells[row][col].content = Seed.NO_SEED;
+
+                    if (isMaximizing) best = Math.max(best, score);
+                    else best = Math.min(best, score);
+                    break;
+                }
+            }
+        }
+        return best;
+    }
+
+    private State evaluateState() {
+        for (int row = 0; row < Board.ROWS; row++) {
+            for (int col = 0; col < Board.COLS; col++) {
+                Seed seed = board.cells[row][col].content;
+                if (seed != Seed.NO_SEED && board.hasWon(seed, row, col)) {
+                    return seed == Seed.CROSS ? State.CROSS_WON : State.NOUGHT_WON;
+                }
+            }
+        }
+        for (int row = 0; row < Board.ROWS; row++) {
+            for (int col = 0; col < Board.COLS; col++) {
+                if (board.cells[row][col].content == Seed.NO_SEED)
+                    return State.PLAYING;
+            }
+        }
+        return State.DRAW;
     }
 
     public static String getPassword(String username) throws ClassNotFoundException {
         String user_password = "";
-        String host = "mysql-buatfp1-anandamutiara2506-1e2c.c.aivencloud.com";
-        String port = "26799";
-        String databaseName = "tictactoedb";
-        String userName = "avnadmin";
-        String password = "AVNS_CfZzLVtdgXNe1MCW1Gt";
+        try {
+            String url = "jdbc:mysql://mysql-buatfp1-anandamutiara2506-1e2c.c.aivencloud.com:26799/tictactoedb?sslmode=require";
+            String user = "avnadmin";
+            String pass = "AVNS_CfZzLVtdgXNe1MCW1Gt";
+            Class.forName("com.mysql.cj.jdbc.Driver");
 
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        try (Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://" + host + ":" + port + "/" + databaseName + "?sslmode=require",
-                userName, password);
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(
-                     "SELECT password from user where username = '" + username + "'")
-        ) {
-            while (resultSet.next()) {
-                user_password = resultSet.getString("password");
+            Connection conn = DriverManager.getConnection(url, user, pass);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT password FROM user WHERE username = '" + username + "'");
+            if (rs.next()) {
+                user_password = rs.getString("password");
             }
-        } catch (SQLException e) {
-            System.out.println("Connection failure.");
+            conn.close();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return user_password;
     }
 
     public static void main(String[] args) {
-        SoundEffect.BGM.loop(); // play background music
-
-        // Show welcome screen first
+        SoundEffect.BGM.loop();
         SwingUtilities.invokeLater(() -> new WelcomeScreen());
-    }
-
-    // Call out LoginScreen
-    public static void launchGameBoard() {
-        JFrame frame = new JFrame(TITLE);
-        frame.setContentPane(new GameMain());
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setLocationRelativeTo(null); // center window
-        frame.setVisible(true);
-    }
-
-    private void updateScoreLabel() {
-        scoreLabel.setText("Score - Player 1: " + crossScore + " | Player 2: " + noughtScore);
     }
 }
