@@ -8,7 +8,7 @@ public class GameMain extends JPanel {
     private static final long serialVersionUID = 1L; // to prevent serializable warning
 
     // Define named constants for the drawing graphics
-    public static final String TITLE = "Connect Four";
+    public static final String TITLE = "Connect-4";
     public static final Color COLOR_BG = Color.WHITE;
     public static final Color COLOR_BG_STATUS = new Color(255, 254, 245);
     public static final Color COLOR_CROSS = new Color(130, 194, 147);  // Red #EF6950
