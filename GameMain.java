@@ -5,64 +5,52 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class GameMain extends JPanel {
-    private static final long serialVersionUID = 1L; // to prevent serializable warning
+    private static final long serialVersionUID = 1L;
 
-    // Define named constants for the drawing graphics
     public static final String TITLE = "Connect Four";
     public static final Color COLOR_BG = Color.WHITE;
     public static final Color COLOR_BG_STATUS = new Color(255, 254, 245);
-    public static final Color COLOR_CROSS = new Color(130, 194, 147);  // Red #EF6950
-    public static final Color COLOR_NOUGHT = new Color(250, 214, 147); // Blue #409AE1
+    public static final Color COLOR_CROSS = new Color(130, 194, 147);
+    public static final Color COLOR_NOUGHT = new Color(250, 214, 147);
     public static final Font FONT_STATUS = new Font("OCR A Extended", Font.PLAIN, 14);
 
-    // Define game objects
-    private Board board;         // the game board
-    private State currentState;  // the current state of the game
-    private Seed currentPlayer;  // the current player
-    private JLabel statusBar;    // for displaying status message
+    private Board board;
+    private State currentState;
+    private Seed currentPlayer;
+    private JLabel statusBar;
 
-    /** Constructor to setup the UI and game components */
     public GameMain() {
-
-        // This JPanel fires MouseEvent
         super.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {  // mouse-clicked handler
+            public void mouseClicked(MouseEvent e) {
                 int mouseX = e.getX();
                 int col = mouseX / Cell.SIZE;
 
                 if (currentState == State.PLAYING) {
                     if (col >= 0 && col < Board.COLS) {
-                        // Find the lowest row to fill in
                         for (int row = Board.ROWS - 1; row >= 0; row--) {
                             if (board.cells[row][col].content == Seed.NO_SEED) {
-                                // Update cell and update state
                                 currentState = board.stepGame(currentPlayer, row, col);
 
-                                // Play sound effect
                                 if (currentState == State.PLAYING) {
                                     SoundEffect.TOKEN.play();
                                 } else {
                                     SoundEffect.DONE.play();
                                 }
 
-                                // Change player's turn
                                 currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
-
                                 break;
                             }
                         }
                     }
-                } else { // game over
-                    newGame();  // start over game
+                } else {
+                    newGame();
                 }
 
-                // redraw the board
                 repaint();
             }
         });
 
-        // Setup the status bar (JLabel) to display status message
         statusBar = new JLabel();
         statusBar.setFont(FONT_STATUS);
         statusBar.setBackground(COLOR_BG_STATUS);
@@ -71,42 +59,35 @@ public class GameMain extends JPanel {
         statusBar.setHorizontalAlignment(JLabel.LEFT);
         statusBar.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 12));
 
-        super.setLayout(new BorderLayout());
-        super.add(statusBar, BorderLayout.PAGE_END); // same as SOUTH
-        super.setPreferredSize(new Dimension(Board.CANVAS_WIDTH, Board.CANVAS_HEIGHT + 30));
-        // account for statusBar in height
-        super.setBorder(BorderFactory.createLineBorder(COLOR_BG_STATUS, 2, false));
+        setLayout(new BorderLayout());
+        add(statusBar, BorderLayout.PAGE_END);
+        setPreferredSize(new Dimension(Board.CANVAS_WIDTH, Board.CANVAS_HEIGHT + 30));
+        setBorder(BorderFactory.createLineBorder(COLOR_BG_STATUS, 2, false));
 
-        // Set up Game
         initGame();
         newGame();
     }
 
-    /** Initialize the game (run once) */
     public void initGame() {
-        board = new Board();  // allocate the game-board
+        board = new Board();
     }
 
-    /** Reset the game-board contents and the current-state, ready for new game */
     public void newGame() {
         for (int row = 0; row < Board.ROWS; ++row) {
             for (int col = 0; col < Board.COLS; ++col) {
-                board.cells[row][col].content = Seed.NO_SEED; // all cells empty
+                board.cells[row][col].content = Seed.NO_SEED;
             }
         }
-        currentPlayer = Seed.CROSS;    // cross plays first
-        currentState = State.PLAYING;  // ready to play
+        currentPlayer = Seed.CROSS;
+        currentState = State.PLAYING;
     }
 
-    /** Custom painting codes on this JPanel */
     @Override
-    public void paintComponent(Graphics g) {  // Callback via repaint()
+    public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        setBackground(COLOR_BG); // set its background color
+        setBackground(COLOR_BG);
+        board.paint(g);
 
-        board.paint(g);  // ask the game board to paint itself
-
-        // Print status-bar message
         if (currentState == State.PLAYING) {
             statusBar.setForeground(Color.BLACK);
             statusBar.setText((currentPlayer == Seed.CROSS) ? "X's Turn" : "O's Turn");
@@ -122,58 +103,22 @@ public class GameMain extends JPanel {
         }
     }
 
-    /** The entry "main" method */
-    public static void main(String[] args) throws ClassNotFoundException {
-        boolean wrongPassword = true;
-        do{
-            Scanner read = new Scanner(System.in);
-            System.out.println("Enter username: ");
-            String uName = read.next();
-            System.out.println("Enter Password: ");
-            String password = read.next();
-            String truePassword = getPassword(uName);
-            if(password.equals(truePassword)){
-                wrongPassword = false;
-            }
-        }while(wrongPassword);
-
-
-        SoundEffect.BGM.loop();
-
-
-        // Run GUI construction codes in Event-Dispatching thread for thread safety
-        javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                JFrame frame = new JFrame(TITLE);
-                // Set the content-pane of the JFrame to an instance of main JPanel
-                frame.setContentPane(new GameMain());
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.pack();
-                frame.setLocationRelativeTo(null); // center the application window
-                frame.setVisible(true);            // show it
-            }
-        });
-    }
-    static String getPassword(String username) throws ClassNotFoundException{
+    public static String getPassword(String username) throws ClassNotFoundException {
         String user_password = "";
-        String host, port, databaseName, userName, password;
-        host = "mysql-buatfp1-anandamutiara2506-1e2c.c.aivencloud.com";
-        port = "26799";
-        databaseName = "tictactoedb";
-        userName = "avnadmin";
-        password = "AVNS_CfZzLVtdgXNe1MCW1Gt";
+        String host = "mysql-buatfp1-anandamutiara2506-1e2c.c.aivencloud.com";
+        String port = "26799";
+        String databaseName = "tictactoedb";
+        String userName = "avnadmin";
+        String password = "AVNS_CfZzLVtdgXNe1MCW1Gt";
 
-        // JDBC allows to have nullable username and password
-        if (host == null || port == null || databaseName == null) {
-            System.out.println("Host, port, database information is required");
-//            return;
-        }
         Class.forName("com.mysql.cj.jdbc.Driver");
-        try (final Connection connection =
-                     DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + databaseName + "?sslmode=require", userName, password);
-             final Statement statement = connection.createStatement();
-             final ResultSet resultSet = statement.executeQuery("SELECT password from user where username = '"+username+"'")) {
-
+        try (Connection connection = DriverManager.getConnection(
+                "jdbc:mysql://" + host + ":" + port + "/" + databaseName + "?sslmode=require",
+                userName, password);
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(
+                     "SELECT password from user where username = '" + username + "'")
+        ) {
             while (resultSet.next()) {
                 user_password = resultSet.getString("password");
             }
@@ -182,5 +127,12 @@ public class GameMain extends JPanel {
             e.printStackTrace();
         }
         return user_password;
+    }
+    public static void main(String[] args) {
+        SoundEffect.BGM.loop();
+
+        SwingUtilities.invokeLater(() -> {
+            new WelcomeScreen();
+        });
     }
 }

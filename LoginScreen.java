@@ -6,38 +6,49 @@ public class LoginScreen extends JFrame {
     public LoginScreen() {
         setTitle("Login");
         setSize(350, 200);
-        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
 
-        JLabel userLabel = new JLabel("Username:");
-        JLabel passLabel = new JLabel("Password:");
-        JTextField usernameField = new JTextField(15);
-        JPasswordField passwordField = new JPasswordField(15);
+        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+        JTextField usernameField = new JTextField();
+        JPasswordField passwordField = new JPasswordField();
+
+        panel.add(new JLabel("Username:"));
+        panel.add(usernameField);
+        panel.add(new JLabel("Password:"));
+        panel.add(passwordField);
+
         JButton loginButton = new JButton("Login");
+        panel.add(new JLabel()); // empty space
+        panel.add(loginButton);
+
+        add(panel);
 
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
+
             try {
-                if (password.equals(GameMain.getPassword(username))) {
-                    dispose();
-                    new TTTGraphics(); // masuk ke papan Connect-4 GUI
+                String truePassword = GameMain.getPassword(username);
+                if (password.equals(truePassword)) {
+                    dispose(); // Tutup login screen
+                    SwingUtilities.invokeLater(() -> {
+                        JFrame frame = new JFrame(GameMain.TITLE);
+                        frame.setContentPane(new GameMain());
+                        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                        frame.pack();
+                        frame.setLocationRelativeTo(null);
+                        frame.setVisible(true);
+                    });
                 } else {
-                    JOptionPane.showMessageDialog(this, "Wrong password!");
+                    JOptionPane.showMessageDialog(this, "Password salah!", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-            } catch (ClassNotFoundException ex) {
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Gagal login!", "Error", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Database Error.");
             }
         });
 
-        JPanel panel = new JPanel(new GridLayout(3, 2, 5, 5));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        panel.add(userLabel); panel.add(usernameField);
-        panel.add(passLabel); panel.add(passwordField);
-        panel.add(new JLabel("")); panel.add(loginButton);
-
-        add(panel);
         setVisible(true);
     }
 }
