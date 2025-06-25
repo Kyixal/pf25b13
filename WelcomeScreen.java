@@ -1,28 +1,31 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
 public class WelcomeScreen extends JFrame {
     public WelcomeScreen() {
         setTitle("Welcome");
-        setSize(400, 300);
+        setSize(500, 350);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        JLabel label = new JLabel("Welcome to Connect Four!", SwingConstants.CENTER);
-        label.setFont(new Font("Arial", Font.BOLD, 18));
+        // Gambar sebagai background
+        JLabel background = new JLabel(new ImageIcon(getClass().getResource("/assets/welcome.jpg")));
+        background.setLayout(new BorderLayout());
+        setContentPane(background);
+
+        // Tambahkan label dan tombol ke atas background
+        JLabel title = new JLabel("Welcome to Connect Four!", SwingConstants.CENTER);
+        title.setFont(new Font("Times New Roman", Font.BOLD, 20));
+        title.setForeground(Color.WHITE); // sesuaikan dengan warna background
+        background.add(title, BorderLayout.NORTH);
 
         JButton startButton = new JButton("Start Game");
-        startButton.setFont(new Font("Arial", Font.PLAIN, 14));
+        startButton.setFont(new Font("Arial", Font.PLAIN, 16));
         startButton.addActionListener(e -> {
             dispose(); // tutup WelcomeScreen
-            new LoginScreen(); // buka login
+            new LoginScreen(); // buka login screen
         });
-
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(label, BorderLayout.CENTER);
-        panel.add(startButton, BorderLayout.SOUTH);
-        add(panel);
+        background.add(startButton, BorderLayout.SOUTH);
 
         setVisible(true);
     }

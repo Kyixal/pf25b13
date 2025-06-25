@@ -2,7 +2,6 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.sql.*;
-import java.util.Scanner;
 
 public class GameMain extends JPanel {
     private static final long serialVersionUID = 1L;
@@ -31,13 +30,11 @@ public class GameMain extends JPanel {
                         for (int row = Board.ROWS - 1; row >= 0; row--) {
                             if (board.cells[row][col].content == Seed.NO_SEED) {
                                 currentState = board.stepGame(currentPlayer, row, col);
-
                                 if (currentState == State.PLAYING) {
                                     SoundEffect.TOKEN.play();
                                 } else {
                                     SoundEffect.DONE.play();
                                 }
-
                                 currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
                                 break;
                             }
@@ -46,7 +43,6 @@ public class GameMain extends JPanel {
                 } else {
                     newGame();
                 }
-
                 repaint();
             }
         });
@@ -59,10 +55,10 @@ public class GameMain extends JPanel {
         statusBar.setHorizontalAlignment(JLabel.LEFT);
         statusBar.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 12));
 
-        setLayout(new BorderLayout());
-        add(statusBar, BorderLayout.PAGE_END);
-        setPreferredSize(new Dimension(Board.CANVAS_WIDTH, Board.CANVAS_HEIGHT + 30));
-        setBorder(BorderFactory.createLineBorder(COLOR_BG_STATUS, 2, false));
+        super.setLayout(new BorderLayout());
+        super.add(statusBar, BorderLayout.PAGE_END);
+        super.setPreferredSize(new Dimension(Board.CANVAS_WIDTH, Board.CANVAS_HEIGHT + 30));
+        super.setBorder(BorderFactory.createLineBorder(COLOR_BG_STATUS, 2, false));
 
         initGame();
         newGame();
@@ -128,11 +124,21 @@ public class GameMain extends JPanel {
         }
         return user_password;
     }
-    public static void main(String[] args) {
-        SoundEffect.BGM.loop();
 
-        SwingUtilities.invokeLater(() -> {
-            new WelcomeScreen(); //
-        });
+    public static void main(String[] args) {
+        SoundEffect.BGM.loop(); // play background music
+
+        // Show welcome screen first
+        SwingUtilities.invokeLater(() -> new WelcomeScreen());
+    }
+
+    // Untuk dipanggil dari LoginScreen jika login berhasil
+    public static void launchGameBoard() {
+        JFrame frame = new JFrame(TITLE);
+        frame.setContentPane(new GameMain());
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setLocationRelativeTo(null); // center window
+        frame.setVisible(true);
     }
 }
